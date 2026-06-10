@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>프로젝트 계획서</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; line-height: 1.6; }
+        h1, h2 { color: #333; }
+        .section { margin-bottom: 30px; border: 1px solid #ddd; padding: 20px; border-radius: 8px; }
+        .tech-list dt { font-weight: bold; margin-top: 10px; }
+        .design-sample { display: flex; flex-wrap: wrap; gap: 20px; }
+        .sample-card { border: 1px solid #ccc; padding: 15px; border-radius: 5px; width: 250px; }
+        pre { background: #f4f4f4; padding: 10px; border-radius: 5px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>프로젝트 계획서: Simple Board Prototype</h1>
+
+    <div class="section">
+        <h2>기술 스택</h2>
+        <dl class="tech-list">
+            <dt>HTML/CSS</dt>
+            <dd>웹페이지의 구조와 시각적 스타일을 정의합니다.</dd>
+            <dt>TypeScript</dt>
+            <dd>JavaScript에 타입을 추가하여 안정적인 개발을 가능하게 합니다.</dd>
+            <dt>Node.js & Express</dt>
+            <dd>서버 사이드 로직을 처리하고 RESTful API를 구축합니다.</dd>
+            <dt>Neon (PostgreSQL)</dt>
+            <dd>클라우드 기반의 서버리스 관계형 데이터베이스로 데이터를 저장합니다.</dd>
+        </dl>
+    </div>
+
+    <div class="section">
+        <h2>시각적 디자인 샘플 (5개)</h2>
+        <div class="design-sample">
+            <div class="sample-card">
+                <h3>1. Clean Minimalist</h3>
+                <p>여백을 강조하고 얇은 테두리와 파란색 강조색을 사용한 깔끔한 디자인.</p>
+            </div>
+            <div class="sample-card">
+                <h3>2. Modern Card-based</h3>
+                <p>그림자와 둥근 모서리를 가진 카드 형태의 레이아웃과 굵은 타이포그래피.</p>
+            </div>
+            <div class="sample-card">
+                <h3>3. Classic Forum</h3>
+                <p>전통적인 테이블 기반의 게시판으로 밀도 높은 정보 전달에 최적화.</p>
+            </div>
+            <div class="sample-card">
+                <h3>4. Soft Pastel</h3>
+                <p>부드러운 파스텔 톤 색상과 둥글둥글한 버튼을 사용한 친근한 디자인.</p>
+            </div>
+            <div class="sample-card">
+                <h3>5. High-Contrast Pro</h3>
+                <p>어두운 헤더와 날카로운 경계선, 굵은 폰트를 사용한 전문적인 느낌.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>테이블 목록</h2>
+        <ul>
+            <li><strong>users</strong>: 회원 정보 (아이디, 비밀번호 등)</li>
+            <li><strong>posts</strong>: 게시글 (제목, 내용, 작성자 등)</li>
+            <li><strong>comments</strong>: 댓글 (게시글 ID, 내용, 작성자 등)</li>
+            <li><strong>likes</strong>: 추천 (게시글 ID, 사용자 ID - 중복 방지)</li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2>CREATE TABLE 문</h2>
+        <pre>
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    password TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE posts (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id),
+    title VARCHAR(200) NOT NULL,
+    content TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE comments (
+    id SERIAL PRIMARY KEY,
+    post_id INTEGER REFERENCES posts(id) ON DELETE CASCADE,
+    user_id INTEGER REFERENCES users(id),
+    content TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE likes (
+    post_id INTEGER REFERENCES posts(id) ON DELETE CASCADE,
+    user_id INTEGER REFERENCES users(id),
+    PRIMARY KEY (post_id, user_id)
+);
+        </pre>
+    </div>
+</body>
+</html>
