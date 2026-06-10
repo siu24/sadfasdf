@@ -172,6 +172,59 @@ app.delete('/api/posts/:id', authenticate, async (req, res) => {
   }
 });
 
+// --- Comments & Likes API ---
+
+// Get comments for a post
+app.get('/api/posts/:id/comments', async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT c.*, u.username 
+      FROM comments c 
+      JOIN users u ON c.user_id = u.id 
+      WHERE c.post_id = $1 
+      ORDER BY c.created_at ASC
+    `, [req.params.id]);
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: 'Database error' });
+  }
+});
+
+// Create comment
+app.post('/api/posts/:id/comments', authenticate, async (req, res) => {
+  const { content } = req.body;
+  const userId = req.cookies.userId;
+  const postId = req.params.id;
+  try {
+    await pool.query(
+      'INSERT INTO comments (post_id, user_id, content) VALUES ($1, $2, $3)',
+      [postId, userId, content]
+    );
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Database error' });
+  }
+});
+
+// Add like (recommendation)
+app.post('/api/posts/:id/like', authenticate, async (req, res) => {
+  const userId = req.cookies.userId;
+  const postId = req.params.id;
+  try {
+    // Check if already liked
+    const check = await pool.query('SELECT * FROM likes WHERE post_id = $1 AND user_id = $2', [postId, userId]);
+    if (check.rows.length > 0) {
+      return res.status(400).json({ error: 'Already recommended' });
+    }
+    
+    await pool.query('INSERT INTO likes (post_id, user_id) VALUES ($1, $2)', [postId, userId]);
+    const countResult = await pool.query('SELECT COUNT(*) as count FROM likes WHERE post_id = $1', [postId]);
+    res.json({ success: true, count: countResult.rows[0].count });
+  } catch (err) {
+    res.status(500).json({ error: 'Database error' });
+  }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);

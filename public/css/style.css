@@ -147,3 +147,57 @@ textarea {
 .btn-secondary {
     background-color: var(--secondary-color);
 }
+
+/* Comment Styles */
+.comment-section {
+    margin-top: 3rem;
+    border-top: 2px solid var(--bg-color);
+    padding-top: 1rem;
+    text-align: left;
+}
+
+.comment-item {
+    background-color: #fffafb;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+    border: 1px solid var(--secondary-color);
+}
+
+.comment-author {
+    font-weight: bold;
+    font-size: 0.9rem;
+    color: var(--accent-color);
+}
+
+.comment-date {
+    font-size: 0.7rem;
+    color: #aaa;
+    margin-left: 10px;
+}
+
+.comment-content {
+    margin-top: 0.5rem;
+    font-size: 0.95rem;
+}
+
+.comment-form {
+    margin-top: 1.5rem;
+}
+
+.like-btn {
+    background-color: var(--white);
+    border: 2px solid var(--primary-color);
+    color: var(--text-color);
+    width: auto;
+    padding: 0.5rem 1.5rem;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin: 1rem auto;
+}
+
+.like-btn:hover {
+    background-color: var(--primary-color);
+}

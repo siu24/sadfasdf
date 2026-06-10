@@ -19,6 +19,20 @@
         </div>
         <div id="postContent" class="post-content">내용</div>
         
+        <button class="like-btn" id="likeBtn">
+            🌸 추천 <span id="likeCount">0</span>
+        </button>
+
+        <div class="comment-section">
+            <h3>댓글</h3>
+            <div id="commentList"></div>
+            
+            <form id="commentForm" class="comment-form">
+                <textarea id="commentInput" placeholder="댓글을 입력하세요..." style="height: 80px;" required></textarea>
+                <button type="submit" class="btn-small">댓글 등록</button>
+            </form>
+        </div>
+        
         <div class="action-buttons">
             <button class="btn-small btn-secondary" onclick="location.href='index.html'">목록으로</button>
             <div id="authorButtons" style="display:none; gap: 10px;">
@@ -45,6 +59,7 @@
             document.getElementById('postAuthor').innerText = post.username;
             document.getElementById('postDate').innerText = new Date(post.created_at).toLocaleString();
             document.getElementById('postLikes').innerText = post.likes_count;
+            document.getElementById('likeCount').innerText = post.likes_count;
             document.getElementById('postContent').innerText = post.content;
 
             if (meData.user && meData.user.id === post.user_id) {
@@ -60,7 +75,47 @@
                     }
                 };
             }
+
+            loadComments();
         }
+
+        async function loadComments() {
+            const res = await fetch(`/api/posts/${postId}/comments`);
+            const comments = await res.json();
+            const commentList = document.getElementById('commentList');
+            commentList.innerHTML = comments.map(c => `
+                <div class="comment-item">
+                    <span class="comment-author">${c.username}</span>
+                    <span class="comment-date">${new Date(c.created_at).toLocaleString()}</span>
+                    <div class="comment-content">${c.content}</div>
+                </div>
+            `).join('') || '<p style="color:#aaa;">첫 댓글을 남겨보세요!</p>';
+        }
+
+        document.getElementById('likeBtn').onclick = async () => {
+            const res = await fetch(`/api/posts/${postId}/like`, { method: 'POST' });
+            const data = await res.json();
+            if (data.success) {
+                document.getElementById('postLikes').innerText = data.count;
+                document.getElementById('likeCount').innerText = data.count;
+            } else {
+                alert(data.error);
+            }
+        };
+
+        document.getElementById('commentForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const content = document.getElementById('commentInput').value;
+            const res = await fetch(`/api/posts/${postId}/comments`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ content })
+            });
+            if (res.ok) {
+                document.getElementById('commentInput').value = '';
+                loadComments();
+            }
+        };
 
         loadPost();
     </script>
