@@ -92,6 +92,86 @@ app.get('/api/me', async (req, res) => {
   }
 });
 
+// --- Post CRUD API ---
+
+// Get all posts
+app.get('/api/posts', async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT p.*, u.username, 
+      (SELECT COUNT(*) FROM likes WHERE post_id = p.id) as likes_count
+      FROM posts p 
+      JOIN users u ON p.user_id = u.id 
+      ORDER BY p.created_at DESC
+    `);
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: 'Database error' });
+  }
+});
+
+// Get single post
+app.get('/api/posts/:id', async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT p.*, u.username,
+      (SELECT COUNT(*) FROM likes WHERE post_id = p.id) as likes_count
+      FROM posts p 
+      JOIN users u ON p.user_id = u.id 
+      WHERE p.id = $1
+    `, [req.params.id]);
+    if (result.rows.length === 0) return res.status(404).json({ error: 'Post not found' });
+    res.json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: 'Database error' });
+  }
+});
+
+// Create post
+app.post('/api/posts', authenticate, async (req, res) => {
+  const { title, content } = req.body;
+  const userId = req.cookies.userId;
+  try {
+    const result = await pool.query(
+      'INSERT INTO posts (user_id, title, content) VALUES ($1, $2, $3) RETURNING id',
+      [userId, title, content]
+    );
+    res.json({ success: true, id: result.rows[0].id });
+  } catch (err) {
+    res.status(500).json({ error: 'Database error' });
+  }
+});
+
+// Update post
+app.put('/api/posts/:id', authenticate, async (req, res) => {
+  const { title, content } = req.body;
+  const userId = req.cookies.userId;
+  const postId = req.params.id;
+  try {
+    const result = await pool.query(
+      'UPDATE posts SET title = $1, content = $2, updated_at = CURRENT_TIMESTAMP WHERE id = $3 AND user_id = $4',
+      [title, content, postId, userId]
+    );
+    if (result.rowCount === 0) return res.status(403).json({ error: 'Unauthorized or not found' });
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Database error' });
+  }
+});
+
+// Delete post
+app.delete('/api/posts/:id', authenticate, async (req, res) => {
+  const userId = req.cookies.userId;
+  const postId = req.params.id;
+  try {
+    const result = await pool.query('DELETE FROM posts WHERE id = $1 AND user_id = $2', [postId, userId]);
+    if (result.rowCount === 0) return res.status(403).json({ error: 'Unauthorized or not found' });
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Database error' });
+  }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);

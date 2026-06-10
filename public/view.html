@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>글 보기 - 파스텔 게시판</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        body { height: auto; min-height: 100vh; padding: 2rem; align-items: flex-start; }
+        .post-container { width: 80%; max-width: 800px; margin: 0 auto; background: white; padding: 2rem; border-radius: 12px; }
+    </style>
+</head>
+<body>
+    <div class="post-container">
+        <h1 id="postTitle">제목</h1>
+        <div class="post-meta">
+            작성자: <span id="postAuthor"></span> | 
+            작성일: <span id="postDate"></span> | 
+            추천수: <span id="postLikes">0</span>
+        </div>
+        <div id="postContent" class="post-content">내용</div>
+        
+        <div class="action-buttons">
+            <button class="btn-small btn-secondary" onclick="location.href='index.html'">목록으로</button>
+            <div id="authorButtons" style="display:none; gap: 10px;">
+                <button id="editBtn" class="btn-small">수정</button>
+                <button id="deleteBtn" class="btn-small btn-secondary">삭제</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const postId = urlParams.get('id');
+
+        async function loadPost() {
+            const [postRes, meRes] = await Promise.all([
+                fetch(`/api/posts/${postId}`),
+                fetch('/api/me')
+            ]);
+            
+            const post = await postRes.json();
+            const meData = await meRes.json();
+
+            document.getElementById('postTitle').innerText = post.title;
+            document.getElementById('postAuthor').innerText = post.username;
+            document.getElementById('postDate').innerText = new Date(post.created_at).toLocaleString();
+            document.getElementById('postLikes').innerText = post.likes_count;
+            document.getElementById('postContent').innerText = post.content;
+
+            if (meData.user && meData.user.id === post.user_id) {
+                document.getElementById('authorButtons').style.display = 'flex';
+                document.getElementById('editBtn').onclick = () => location.href = `write.html?id=${postId}`;
+                document.getElementById('deleteBtn').onclick = async () => {
+                    if (confirm('정말 삭제하시겠습니까?')) {
+                        const res = await fetch(`/api/posts/${postId}`, { method: 'DELETE' });
+                        if (res.ok) {
+                            alert('삭제되었습니다.');
+                            location.href = 'index.html';
+                        }
+                    }
+                };
+            }
+        }
+
+        loadPost();
+    </script>
+</body>
+</html>

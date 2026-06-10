@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>글쓰기 - 파스텔 게시판</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        body { height: auto; min-height: 100vh; padding: 2rem; align-items: flex-start; }
+        .form-container { width: 80%; max-width: 800px; margin: 0 auto; background: white; padding: 2rem; border-radius: 12px; }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h1 id="formTitle">새 글 쓰기</h1>
+        <form id="postForm">
+            <input type="text" id="title" placeholder="제목을 입력하세요" required>
+            <textarea id="content" placeholder="내용을 입력하세요" required></textarea>
+            <div class="action-buttons">
+                <button type="submit">저장하기</button>
+                <button type="button" class="btn-secondary" onclick="history.back()">취소</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const postId = urlParams.get('id');
+
+        if (postId) {
+            document.getElementById('formTitle').innerText = '글 수정하기';
+            fetch(`/api/posts/${postId}`)
+                .then(res => res.json())
+                .then(post => {
+                    document.getElementById('title').value = post.title;
+                    document.getElementById('content').value = post.content;
+                });
+        }
+
+        document.getElementById('postForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const title = document.getElementById('title').value;
+            const content = document.getElementById('content').value;
+            
+            const method = postId ? 'PUT' : 'POST';
+            const url = postId ? `/api/posts/${postId}` : '/api/posts';
+
+            const res = await fetch(url, {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title, content })
+            });
+
+            const data = await res.json();
+            if (data.success) {
+                alert('저장되었습니다.');
+                location.href = postId ? `view.html?id=${postId}` : 'index.html';
+            } else {
+                alert(data.error || '오류가 발생했습니다.');
+            }
+        };
+    </script>
+</body>
+</html>
