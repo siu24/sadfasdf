@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>회원가입 - 파스텔 게시판</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>회원가입</h1>
+        <form id="registerForm">
+            <input type="text" id="username" placeholder="아이디" required>
+            <input type="password" id="password" placeholder="비밀번호" required>
+            <button type="submit">가입하기</button>
+        </form>
+        <div class="link-text">
+            이미 계정이 있나요? <a href="login.html">로그인</a>
+        </div>
+    </div>
+    <script>
+        document.getElementById('registerForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const res = await fetch('/api/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert('가입을 환영합니다! 로그인해 주세요.');
+                location.href = 'login.html';
+            } else {
+                alert(data.error);
+            }
+        };
+    </script>
+</body>
+</html>

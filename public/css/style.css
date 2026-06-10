@@ -1,0 +1,75 @@
+:root {
+    --bg-color: #fdf6f0;
+    --primary-color: #ffc8dd;
+    --secondary-color: #bde0fe;
+    --accent-color: #ffafcc;
+    --text-color: #555;
+    --white: #ffffff;
+    --border-radius: 12px;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.container {
+    background-color: var(--white);
+    padding: 2rem;
+    border-radius: var(--border-radius);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+    width: 350px;
+    text-align: center;
+}
+
+h1 {
+    color: var(--accent-color);
+    margin-bottom: 1.5rem;
+}
+
+input {
+    width: 100%;
+    padding: 0.8rem;
+    margin-bottom: 1rem;
+    border: 2px solid var(--secondary-color);
+    border-radius: var(--border-radius);
+    box-sizing: border-box;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+input:focus {
+    border-color: var(--accent-color);
+}
+
+button {
+    width: 100%;
+    padding: 0.8rem;
+    background-color: var(--primary-color);
+    border: none;
+    border-radius: var(--border-radius);
+    color: var(--text-color);
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: var(--accent-color);
+}
+
+.link-text {
+    margin-top: 1rem;
+    font-size: 0.9rem;
+}
+
+.link-text a {
+    color: var(--accent-color);
+    text-decoration: none;
+}

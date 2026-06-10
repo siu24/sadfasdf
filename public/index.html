@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>파스텔 게시판</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        body { height: auto; min-height: 100vh; padding: 2rem; align-items: flex-start; }
+        .board-container { width: 80%; max-width: 800px; margin: 0 auto; background: white; padding: 2rem; border-radius: 12px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+        .user-info { font-size: 0.9rem; }
+        .logout-btn { width: auto; padding: 0.5rem 1rem; font-size: 0.8rem; background-color: #eee; }
+    </style>
+</head>
+<body>
+    <div class="board-container">
+        <div class="header">
+            <h1>파스텔 게시판</h1>
+            <div id="authSection" class="user-info"></div>
+        </div>
+        <div id="content">
+            <p>게시글 목록을 불러오는 중...</p>
+        </div>
+    </div>
+
+    <script>
+        async function checkAuth() {
+            const res = await fetch('/api/me');
+            const data = await res.json();
+            const authSection = document.getElementById('authSection');
+            if (data.user) {
+                authSection.innerHTML = `
+                    <span>${data.user.username}님 환영합니다!</span>
+                    <button class="logout-btn" onclick="logout()">로그아웃</button>
+                `;
+            } else {
+                location.href = 'login.html';
+            }
+        }
+
+        async function logout() {
+            await fetch('/api/logout', { method: 'POST' });
+            location.href = 'login.html';
+        }
+
+        checkAuth();
+    </script>
+</body>
+</html>
